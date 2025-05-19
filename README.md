@@ -16,7 +16,7 @@ This API, built using **Python (Flask)** and **MongoDB**, is designed for managi
         ```
         *   `atlas_login` - The connection address to your MongoDB database.
         *   `jwt_key` - The secret key for generating JWT tokens.
-    *   Navigate to the front-end directory (e.g. frontend/) and install dependencies:
+    *   Navigate to the front-end directory (e.g. page/) and install dependencies:
         ```bash
         npm install
         ```
@@ -26,8 +26,8 @@ This API, built using **Python (Flask)** and **MongoDB**, is designed for managi
         ```bash
         python server.py
         ```
-   **Run the API and Front-End:**
-   *   To start the front-end development server, navigate to the front-end directory and run:
+    **Run the API and Front-End:**
+    *   To start the front-end development server, navigate to the front-end directory and run:
        ```bash
        npm start
        ```
