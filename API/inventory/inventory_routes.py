@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from inventory.inventory_utils import get_all_inventory, create_inventory_item, get_single_inventory_item, update_inventory_item, delete_inventory_item
+from API.inventory.inventory_utils import get_all_inventory, create_inventory_item, get_single_inventory_item, update_inventory_item, delete_inventory_item
 from flask_jwt_extended import jwt_required
 
 inventory_bp = Blueprint('inventory', __name__, url_prefix='/inventory')

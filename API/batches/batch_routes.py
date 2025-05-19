@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from batches import batch_utils
+from API.batches import batch_utils
 from flask_jwt_extended import jwt_required
 
 batch_bp = Blueprint('batches', __name__, url_prefix='/batches')

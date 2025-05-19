@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from recipes.recipe_utils import get_all_recipes, create_recipe, get_single_recipe, update_recipe, delete_recipe
+from API.recipes.recipe_utils import get_all_recipes, create_recipe, get_single_recipe, update_recipe, delete_recipe
 from flask_jwt_extended import jwt_required
 
 recipe_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
