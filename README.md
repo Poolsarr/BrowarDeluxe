@@ -1,6 +1,6 @@
 # 🍺 BrowarAPI DELUXE 🍺
 
-This API, built using **Python (Flask)** and **MongoDB**, is designed for managing a brewery. It allows for the management of users, production batches, inventory, and beer recipes.
+This project consists of a **Python (Flask)**) and **MongoDB** API for managing a brewery, along with a front-end application for user interaction. It allows management of users, production batches, inventory, and beer recipes.
 
 ## **Installation and Setup**
 
