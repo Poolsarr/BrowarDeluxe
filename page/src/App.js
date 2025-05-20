@@ -1,13 +1,8 @@
 import React from "react";
-import TestPage from "./TestPage";
+import Home from "./pages/Home";
 
 function App() {
-  return (
-    <div>
-      <h1>BrowardDeluxe Test Frontend</h1>
-      <TestPage />
-    </div>
-  );
+  return <Home />;
 }
 
 export default App;
