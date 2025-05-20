@@ -38,7 +38,21 @@ const Batches = () => {
       <ul>
         {batches.map((batch) => (
           <li key={batch._id}>
-            <strong>{batch.name}</strong> – Status: {batch.status}
+              BatchID: <strong>{batch._id}</strong>
+            <br />
+              RecipeID: {batch.recipeId}
+            <br />
+              Start Date: {batch.start_date}
+            <br />
+              End Date: {batch.end_date}
+            <br />
+              Status: {batch.status}
+            <br />
+              Volume: {batch.volume}
+            <br />
+              Notes: {batch.notes}
+            <br />
+            <br />
           </li>
         ))}
       </ul>
