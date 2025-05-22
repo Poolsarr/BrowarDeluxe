@@ -19,11 +19,10 @@ const UserStatus = () => {
       }
     };
 
-    // Pobranie użytkownika z tokena (jeśli token zawiera zakodowaną nazwę)
+    
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        // Zakładamy, że token to JWT i możemy go rozkodować
         const payload = JSON.parse(atob(token.split(".")[1]));
         setUsername(payload.login || payload.username || "Nieznany");
       } catch (e) {
