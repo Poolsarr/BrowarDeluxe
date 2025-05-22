@@ -4,10 +4,13 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Batches from "./pages/Batches";
 import Register from "./pages/Register";
+import UserStatus from "./pages/UserStatus";
 
 function App() {
   return (
     <Router>
+      <UserStatus />
+
       <nav style={{ padding: "10px" }}>
         <Link to="/" style={{ marginRight: "10px" }}>Home</Link>
         <Link to="/batches" style={{ marginRight: "10px" }}>Batches</Link>

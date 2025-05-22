@@ -18,12 +18,13 @@ const Login = () => {
       });
 
       const data = await res.json();
+      
 
       if (res.ok) {
         localStorage.setItem("token", data.access_token);
         navigate("/");
       } else {
-        setError(data.msg || "Błąd logowania");
+        setMessage(`❌ Błąd: ${data.msg || "Nie udało się zalogować."}`);
       }
     } catch (err) {
       setError("Błąd połączenia z serwerem");
