@@ -1,28 +1,38 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./pages/Navbar";
 import Login from "./pages/Login";
+import Home from "./pages/Home";
 import Batches from "./pages/Batches";
-import Register from "./pages/Register";
-import UserStatus from "./pages/UserStatus";
+import Inventory from "./pages/Inventory";
+import Recipes from "./pages/Recipes";
+import Users from "./pages/Users";
 
 function App() {
+  const [username, setUsername] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUsername(payload.sub || payload.login || payload.username);
+      } catch {
+        setUsername(null);
+      }
+    }
+  }, []);
+
   return (
     <Router>
-      <UserStatus />
-
-      <nav style={{ padding: "10px" }}>
-        <Link to="/" style={{ marginRight: "10px" }}>Home</Link>
-        <Link to="/batches" style={{ marginRight: "10px" }}>Batches</Link>
-        <Link to="/login" style={{ marginRight: "10px" }}>Login</Link>
-        <Link to="/register" style={{ marginRight: "10px" }}>Register</Link>
-      </nav>
-
+      <Navbar username={username} setUsername={setUsername} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/batches" element={<Batches />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/batches" element={<Batches />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/recipes" element={<Recipes />} />
+        <Route path="/users" element={<Users />} />
       </Routes>
     </Router>
   );

@@ -11,23 +11,23 @@ const Login = () => {
     try {
       const res = await fetch("http://localhost:5000/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ login, password }),
       });
 
-      const data = await res.json();
-      
-
-      if (res.ok) {
-        localStorage.setItem("token", data.access_token);
-        navigate("/");
-      } else {
-        setMessage(`❌ Błąd: ${data.msg || "Nie udało się zalogować."}`);
+      if (!res.ok) {
+        throw new Error("Błąd logowania");
       }
+
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("username", login);
+
+      alert("Zalogowano!");
+      navigate("/");
     } catch (err) {
-      setError("Błąd połączenia z serwerem");
+      console.error("Błąd logowania:", err);
+      setError("Nieprawidłowy login lub hasło");
     }
   };
 

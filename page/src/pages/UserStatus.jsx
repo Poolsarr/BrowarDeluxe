@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UserStatus = () => {
   const [serverStatus, setServerStatus] = useState("⏳ Sprawdzanie...");
   const [username, setUsername] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Sprawdzenie statusu serwera
@@ -19,19 +21,26 @@ const UserStatus = () => {
       }
     };
 
-    
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
-        setUsername(payload.login || payload.username || "Nieznany");
+        setUsername(payload.sub || payload.login || payload.username || "Nieznany");
       } catch (e) {
         setUsername("Nieznany");
       }
     }
 
+
     pingServer();
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    setUsername(null);
+    navigate("/login");
+  };
 
   return (
     <div style={{
@@ -42,7 +51,16 @@ const UserStatus = () => {
       fontSize: "0.9rem",
       color: "#333"
     }}>
-      {username && <div>Zalogowany: <strong>{username}</strong></div>}
+      {username ? (
+        <>
+          <div>Zalogowany: <strong>{username}</strong></div>
+          <button onClick={handleLogout} style={{ marginTop: "4px" }}>
+            Wyloguj
+          </button>
+        </>
+      ) : (
+        <div>Nie jesteś zalogowany</div>
+      )}
       <div>Status serwera: {serverStatus}</div>
     </div>
   );
