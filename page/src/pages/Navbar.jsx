@@ -20,6 +20,7 @@ const Navbar = ({ username, setUsername }) => {
         <Link to="/inventory" className="hover:underline">Inventory</Link>
         <Link to="/recipes" className="hover:underline">Recipes</Link>
         <Link to="/users" className="hover:underline">Users</Link>
+        <Link to="/invoices" className="hover:underline">Invoices</Link>
       </div>
       <div className="flex items-center space-x-4">
         {username ? (
