@@ -10,12 +10,7 @@ import {
   Box,
   Avatar,
 } from "@mui/material";
-import {
-  Science,
-  Inventory,
-  Receipt,
-  Assignment,
-} from "@mui/icons-material";
+import { Science, Inventory, Receipt, Assignment } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
