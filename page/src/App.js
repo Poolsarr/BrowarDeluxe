@@ -8,14 +8,13 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import theme from './theme';
-import Navbar from "./pages/Navbar";
-import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Batches from "./pages/Batches";
 import Inventory from "./pages/Inventory";
 import Recipes from "./pages/Recipes";
 import Users from "./pages/Users";
 import Invoices from "./pages/Invoices";
+import Auth from "./pages/Auth";
 
 function App() {
   const [username, setUsername] = useState(null);
@@ -36,10 +35,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Navbar username={username} setUsername={setUsername} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/batches" element={<Batches />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/recipes" element={<Recipes />} />

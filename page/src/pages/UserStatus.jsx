@@ -7,7 +7,7 @@ const UserStatus = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Sprawdzenie statusu serwera
+    // Sprawdzenie statusu serwera <- na razie wyłączone
     const pingServer = async () => {
       try {
         const res = await fetch("http://localhost:5000/");

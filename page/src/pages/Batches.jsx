@@ -1,4 +1,18 @@
 import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Box,
+  Grid,
+  TextField,
+  Button,
+  Paper,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { ArrowBack, Edit, Delete } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const Batches = () => {
   const [batches, setBatches] = useState([]);
@@ -12,6 +26,7 @@ const Batches = () => {
     notes: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
   const fetchBatches = async () => {
     try {
@@ -22,15 +37,9 @@ const Batches = () => {
         },
       });
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setBatches(data);
-      } else {
-        setBatches([]);  // fallback na pustą tablicę
-      }
-
+      setBatches(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Błąd pobierania partii:", err);
-      setBatches([]);  // fallback na pustą tablicę
     }
   };
 
@@ -43,61 +52,38 @@ const Batches = () => {
   };
 
   const handleSave = async () => {
-    const {
-      _id,
-      recipeId,
-      startDate,
-      endDate,
-      status,
-      volume,
-      notes,
-    } = form;
     const token = localStorage.getItem("token");
 
-    const trimmedForm = {
-      recipeId: recipeId.trim(),
-      startDate: startDate.trim(),
-      status: status.trim(),
-      volume: volume,
-    };
-
-    console.log({ recipeId, startDate, status, volume }); //debug
-
-
-    if (!editingId && !/^\d{5}$/.test(_id)) {
-      alert("ID musi składać się z 5 cyfr");
-      return;
-    }
-
     if (
-      !trimmedForm.recipeId ||
-      !trimmedForm.startDate ||
-      !trimmedForm.status ||
-      trimmedForm.volume === "" ||
-      isNaN(Number(trimmedForm.volume))
+      (!editingId && !/^\d{5}$/.test(form._id)) ||
+      !form.recipeId ||
+      !form.startDate ||
+      !form.status ||
+      form.volume === "" ||
+      isNaN(Number(form.volume))
     ) {
-      alert("Uzupełnij wymagane pola");
+      alert("Uzupełnij poprawnie wszystkie wymagane pola");
       return;
     }
 
     const payload = {
-      ...(editingId ? {} : { _id }),
-      recipeId: trimmedForm.recipeId,
-      startDate: trimmedForm.startDate,
-      endDate: endDate || null,
-      status: trimmedForm.status,
-      volume: Number(trimmedForm.volume),
-      notes: notes.trim(),
+      ...(editingId ? {} : { _id: form._id }),
+      recipeId: form.recipeId.trim(),
+      startDate: form.startDate,
+      endDate: form.endDate || null,
+      status: form.status.trim(),
+      volume: Number(form.volume),
+      notes: form.notes.trim(),
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
 
-    const url = editingId
-      ? `http://localhost:5000/batches/${editingId}`
-      : "http://localhost:5000/batches";
-    const method = editingId ? "PUT" : "POST";
-
     try {
+      const url = editingId
+        ? `http://localhost:5000/batches/${editingId}`
+        : "http://localhost:5000/batches";
+      const method = editingId ? "PUT" : "POST";
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -141,7 +127,6 @@ const Batches = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Na pewno usunąć partię?")) return;
-
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:5000/batches/${id}`, {
@@ -150,9 +135,7 @@ const Batches = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (!res.ok) throw new Error("Błąd usuwania");
-
       await fetchBatches();
     } catch (err) {
       console.error(err);
@@ -160,97 +143,174 @@ const Batches = () => {
     }
   };
 
+  const columns = [
+    { field: "_id", headerName: "ID", width: 100 },
+    { field: "recipeId", headerName: "Receptura", width: 130 },
+    {
+      field: "startDate",
+      headerName: "Start",
+      width: 160,
+      valueGetter: (p) => p.value?.slice(0, 16).replace("T", " "),
+    },
+    {
+      field: "endDate",
+      headerName: "Koniec",
+      width: 160,
+      valueGetter: (p) =>
+        p.value ? p.value.slice(0, 16).replace("T", " ") : "-",
+    },
+    { field: "status", headerName: "Status", width: 120 },
+    {
+      field: "volume",
+      headerName: "Objętość (L)",
+      width: 120,
+      type: "number",
+    },
+    { field: "notes", headerName: "Notatki", width: 160 },
+    {
+      field: "actions",
+      headerName: "Akcje",
+      width: 130,
+      renderCell: (params) => (
+        <>
+          <Tooltip title="Edytuj">
+            <IconButton onClick={() => handleEdit(params.row)} color="primary">
+              <Edit />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Usuń">
+            <IconButton
+              onClick={() => handleDelete(params.row._id)}
+              color="error"
+            >
+              <Delete />
+            </IconButton>
+          </Tooltip>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Partie produkcyjne</h2>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      {/* Powrót */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate("/")}
+        >
+          Powrót
+        </Button>
+      </Box>
 
-      <h3>{editingId ? "Edytuj partię" : "Dodaj partię"}</h3>
-      <div style={{ marginBottom: "10px" }}>
-        {!editingId && (
-          <input
-            name="_id"
-            placeholder="ID (5 cyfr)"
-            value={form._id}
-            onChange={handleChange}
-          />
-        )}
-        <input
-          name="recipeId"
-          placeholder="ID Receptury"
-          value={form.recipeId}
-          onChange={handleChange}
-          onBlur={() => setForm({ ...form, recipeId: form.recipeId.trim() })}
-        />
-        <input
-          name="startDate"
-          type="datetime-local"
-          value={form.startDate}
-          onChange={handleChange}
-        />
-        <input
-          name="endDate"
-          type="datetime-local"
-          value={form.endDate}
-          onChange={handleChange}
-        />
-        <input
-          name="status"
-          placeholder="Status"
-          value={form.status}
-          onChange={handleChange}
-          onBlur={() => setForm({ ...form, status: form.status.trim() })}
-        />
-        <input
-          name="volume"
-          type="number"
-          placeholder="Objętość (L)"
-          value={form.volume}
-          onChange={handleChange}
-        />
-        <textarea
-          name="notes"
-          placeholder="Notatki"
-          value={form.notes}
-          onChange={handleChange}
-          onBlur={() => setForm({ ...form, notes: form.notes.trim() })}
-        />
-        <button onClick={handleSave}>
-          {editingId ? "Zapisz zmiany" : "Dodaj partię"}
-        </button>
-      </div>
+      {/* Nagłówek */}
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+        Partie Produkcyjne
+      </Typography>
 
-      <table border="1" cellPadding="5" style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Receptura</th>
-            <th>Start</th>
-            <th>Koniec</th>
-            <th>Status</th>
-            <th>Objętość</th>
-            <th>Notatki</th>
-            <th>Akcje</th>
-          </tr>
-        </thead>
-        <tbody>
-          {batches.map((b) => (
-            <tr key={b._id}>
-              <td>{b._id}</td>
-              <td>{b.recipeId}</td>
-              <td>{b.startDate?.slice(0, 16).replace("T", " ")}</td>
-              <td>{b.endDate ? b.endDate.slice(0, 16).replace("T", " ") : "-"}</td>
-              <td>{b.status}</td>
-              <td>{b.volume} L</td>
-              <td>{b.notes}</td>
-              <td>
-                <button onClick={() => handleEdit(b)}>Edytuj</button>
-                <button onClick={() => handleDelete(b._id)}>Usuń</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      {/* Formularz */}
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          {editingId ? "Edytuj partię" : "Dodaj partię"}
+        </Typography>
+        <Grid container spacing={2}>
+          {!editingId && (
+            <Grid item xs={12} sm={2}>
+              <TextField
+                name="_id"
+                label="ID (5 cyfr)"
+                fullWidth
+                value={form._id}
+                onChange={handleChange}
+              />
+            </Grid>
+          )}
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="recipeId"
+              label="ID Receptury"
+              fullWidth
+              value={form.recipeId}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <TextField
+              name="startDate"
+              label="Data rozpoczęcia"
+              type="datetime-local"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={form.startDate}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <TextField
+              name="endDate"
+              label="Data zakończenia"
+              type="datetime-local"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={form.endDate}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="status"
+              label="Status"
+              fullWidth
+              value={form.status}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="volume"
+              label="Objętość (L)"
+              type="number"
+              fullWidth
+              value={form.volume}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="notes"
+              label="Notatki"
+              fullWidth
+              multiline
+              minRows={2}
+              value={form.notes}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+              sx={{ mt: 2 }}
+            >
+              {editingId ? "Zapisz zmiany" : "Dodaj partię"}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Tabela */}
+      <Paper sx={{ height: 400 }}>
+        <DataGrid
+          rows={batches}
+          columns={columns}
+          getRowId={(row) => row._id}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10]}
+        />
+      </Paper>
+    </Container>
   );
 };
 
