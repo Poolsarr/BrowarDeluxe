@@ -21,23 +21,36 @@ const Auth = () => {
   const navigate = useNavigate();
 
   const handleAuth = async () => {
+    setError("");
+    setSuccess("");
+
+    // Walidacja klienta – upewnij się, że nie wysyłasz pustych danych
+    if (!login.trim() || !password.trim()) {
+      setError("Login i hasło są wymagane.");
+      return;
+    }
+
     const url = `http://localhost:5000/${isLogin ? "login" : "register"}`;
 
     try {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ login, password }),
+        body: JSON.stringify({ login: login.trim(), password: password.trim() }),
       });
 
+      const contentType = res.headers.get("Content-Type") || "";
+
+      // Obsługa błędu serwera
       if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Błąd operacji");
+        const errMsg = contentType.includes("application/json")
+          ? (await res.json()).error
+          : await res.text();
+        throw new Error(errMsg || "Błąd operacji");
       }
 
-      const data = isLogin ? await res.json() : null;
-
       if (isLogin) {
+        const data = await res.json();
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("username", login);
         navigate("/");
@@ -47,11 +60,8 @@ const Auth = () => {
         setPassword("");
         setTimeout(() => setIsLogin(true), 1500);
       }
-
-      setError("");
     } catch (err) {
       setError(err.message || "Wystąpił błąd");
-      setSuccess("");
     }
   };
 

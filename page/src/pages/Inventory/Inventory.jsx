@@ -5,10 +5,8 @@ import { ArrowBack } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import InventoryForm from "./InventoryForm";
 import InventoryTable from "./InventoryTable";
-import {
-  fetchInventory,
-  deleteInventoryItem,
-} from "./InventoryService";
+import { fetchInventory, deleteInventoryItem } from "./InventoryService";
+import { motion } from "framer-motion"; // <--- dodane
 
 const Inventory = () => {
   const [items, setItems] = useState([]);
@@ -64,41 +62,71 @@ const Inventory = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate("/")}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            onClick={() => navigate("/")}
+          >
+            Powrót
+          </Button>
+        </Box>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
-          Powrót
-        </Button>
-      </Box>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+            Magazyn
+          </Typography>
+        </motion.div>
 
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-        Magazyn
-      </Typography>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Typography color="error" variant="body1" gutterBottom>
+              {error}
+            </Typography>
+          </motion.div>
+        )}
 
-      {error && (
-        <Typography color="error" variant="body1" gutterBottom>
-          {error}
-        </Typography>
-      )}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <InventoryForm
+            form={form}
+            setForm={setForm}
+            editingId={editingId}
+            setEditingId={setEditingId}
+            fetchInventory={loadInventory}
+          />
+        </motion.div>
 
-      <InventoryForm
-        form={form}
-        setForm={setForm}
-        editingId={editingId}
-        setEditingId={setEditingId}
-        fetchInventory={loadInventory}
-      />
-
-      <InventoryTable
-        items={items}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
-    </Container>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <InventoryTable
+            items={items}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        </motion.div>
+      </Container>
+    </motion.div>
   );
 };
 

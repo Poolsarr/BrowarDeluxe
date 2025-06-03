@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import BatchForm from "./BatchForm";
 import BatchesTable from "./BatchesTable";
 import { fetchBatches, deleteBatch } from "./BatchService";
+import BatchStatusChart from './BatchStatusChart';
+import { motion } from "framer-motion"; // <-- dodane
 
 const Batches = () => {
   const [batches, setBatches] = useState([]);
@@ -59,35 +61,70 @@ const Batches = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate("/")}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            onClick={() => navigate("/")}
+          >
+            Powrót
+          </Button>
+        </Box>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
-          Powrót
-        </Button>
-      </Box>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+            Partie Produkcyjne
+          </Typography>
+        </motion.div>
 
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-        Partie Produkcyjne
-      </Typography>
+        {/* Wykres statusów partii */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Box sx={{ my: 4 }}>
+            <BatchStatusChart batches={batches} />
+          </Box>
+        </motion.div>
 
-      <BatchForm
-        form={form}
-        setForm={setForm}
-        editingId={editingId}
-        setEditingId={setEditingId}
-        fetchBatches={loadBatches}
-      />
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <BatchForm
+            form={form}
+            setForm={setForm}
+            editingId={editingId}
+            setEditingId={setEditingId}
+            fetchBatches={loadBatches}
+          />
+        </motion.div>
 
-      <BatchesTable
-        batches={batches}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
-    </Container>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <BatchesTable
+            batches={batches}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        </motion.div>
+      </Container>
+    </motion.div>
   );
 };
 

@@ -1,6 +1,7 @@
-// src/components/Invoices/Invoices.jsx
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Alert } from '@mui/material';
+import { Box, Typography, Alert, Button, Container } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import InvoiceForm from './InvoiceForm';
 import InvoiceTable from './InvoiceTable';
 import {
@@ -9,6 +10,7 @@ import {
   downloadInvoice,
   deleteInvoice
 } from './InvoiceService';
+import { motion } from 'framer-motion';
 
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
@@ -16,6 +18,7 @@ const Invoices = () => {
   const [invoiceName, setInvoiceName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const loadInvoices = async () => {
     try {
@@ -71,35 +74,87 @@ const Invoices = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Dokumenty
-      </Typography>
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        {/* Powrót */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            onClick={() => navigate('/')}
+          >
+            Powrót
+          </Button>
+        </Box>
 
-      <InvoiceForm
-        invoiceName={invoiceName}
-        setInvoiceName={setInvoiceName}
-        setSelectedFile={setSelectedFile}
-        handleFileUpload={handleFileUpload}
-      />
+        {/* Nagłówek */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Dokumenty
+          </Typography>
+        </motion.div>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
-          {success}
-        </Alert>
-      )}
+        {/* Formularz */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <InvoiceForm
+            invoiceName={invoiceName}
+            setInvoiceName={setInvoiceName}
+            setSelectedFile={setSelectedFile}
+            handleFileUpload={handleFileUpload}
+          />
+        </motion.div>
 
-      <InvoiceTable
-        invoices={invoices}
-        handleDownload={handleDownload}
-        handleDelete={handleDelete}
-      />
-    </Box>
+        {/* Alerty */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+              {error}
+            </Alert>
+          </motion.div>
+        )}
+
+        {success && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
+              {success}
+            </Alert>
+          </motion.div>
+        )}
+
+        {/* Tabela */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <InvoiceTable
+            invoices={invoices}
+            handleDownload={handleDownload}
+            handleDelete={handleDelete}
+          />
+        </motion.div>
+      </Container>
+    </motion.div>
   );
 };
 

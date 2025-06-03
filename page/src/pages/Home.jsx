@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { Science, Inventory, Receipt, Assignment } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"; // <--- dodane
 
 const Home = () => {
   const navigate = useNavigate();
@@ -61,101 +62,110 @@ const Home = () => {
   };
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        mt: 4,
-        mb: 4,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
     >
-      {/* Logout Button */}
-      <Box sx={{ alignSelf: "flex-end", mb: 2 }}>
-        <Button variant="outlined" color="error" onClick={handleLogout}>
-          Wyloguj
-        </Button>
-      </Box>
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: 4,
+          mb: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        {/* Logout Button */}
+        <Box sx={{ alignSelf: "flex-end", mb: 2 }}>
+          <Button variant="outlined" color="error" onClick={handleLogout}>
+            Wyloguj
+          </Button>
+        </Box>
 
-      {/* Header */}
-      <Box sx={{ mb: 4, textAlign: "center" }}>
-        <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold" }}>
-          Dashboard BrowarDeluxe
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          System zarządzania browarem
-        </Typography>
-      </Box>
+        {/* Header */}
+        <Box sx={{ mb: 4, textAlign: "center" }}>
+          <Typography variant="h3" gutterBottom sx={{ fontWeight: "bold" }}>
+            Dashboard BrowarDeluxe
+          </Typography>
+          <Typography variant="h6" color="text.secondary">
+            System zarządzania browarem
+          </Typography>
+        </Box>
 
-      {/* Logo */}
-      <Box sx={{ mb: 4 }}>
-        <img
-          src="/img/deluxe_main.svg"
-          alt="BrowarDeluxe Logo"
-          style={{ maxWidth: "400px", marginBottom: "40px" }}
-        />
-      </Box>
+        {/* Logo */}
+        <Box sx={{ mb: 4 }}>
+          <img
+            src="/img/deluxe_main.svg"
+            alt="BrowarDeluxe Logo"
+            style={{ maxWidth: "400px", marginBottom: "40px" }}
+          />
+        </Box>
 
-      {/* Menu */}
-      <Grid container spacing={3} sx={{ mb: 4 }} justifyContent="center">
-        {quickActions.map((action, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                transition: "all 0.3s",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <CardContent sx={{ flexGrow: 1, textAlign: "center", pt: 3 }}>
-                <Avatar
+        {/* Menu */}
+        <Grid container spacing={3} sx={{ mb: 4 }} justifyContent="center">
+          {quickActions.map((action, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.4 }}
+                whileHover={{ scale: 1.03 }}
+              >
+                <Card
                   sx={{
-                    bgcolor: action.color,
-                    width: 64,
-                    height: 64,
-                    mx: "auto",
-                    mb: 2,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "all 0.3s",
                   }}
                 >
-                  {action.icon}
-                </Avatar>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ fontWeight: "bold" }}
-                >
-                  {action.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {action.description}
-                </Typography>
-              </CardContent>
-              <CardActions sx={{ justifyContent: "center", pb: 2 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate(action.path)}
-                  sx={{
-                    bgcolor: action.color,
-                    "&:hover": {
-                      bgcolor: action.color,
-                      filter: "brightness(0.9)",
-                    },
-                  }}
-                >
-                  Przejdź
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+                  <CardContent sx={{ flexGrow: 1, textAlign: "center", pt: 3 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: action.color,
+                        width: 64,
+                        height: 64,
+                        mx: "auto",
+                        mb: 2,
+                      }}
+                    >
+                      {action.icon}
+                    </Avatar>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {action.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {action.description}
+                    </Typography>
+                  </CardContent>
+                  <CardActions sx={{ justifyContent: "center", pb: 2 }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => navigate(action.path)}
+                      sx={{
+                        bgcolor: action.color,
+                        "&:hover": {
+                          bgcolor: action.color,
+                          filter: "brightness(0.9)",
+                        },
+                      }}
+                    >
+                      Przejdź
+                    </Button>
+                  </CardActions>
+                </Card>
+              </motion.div>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </motion.div>
   );
 };
 
