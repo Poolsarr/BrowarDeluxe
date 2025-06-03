@@ -1,4 +1,18 @@
 import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Box,
+  Grid,
+  TextField,
+  Button,
+  Paper,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { ArrowBack, Edit, Delete } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const Inventory = () => {
   const [items, setItems] = useState([]);
@@ -11,26 +25,17 @@ const Inventory = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
-
-  const parseField = (value) => {
-    if (value && typeof value === "object") {
-      if ("$numberInt" in value) return parseInt(value.$numberInt);
-      if ("$date" in value) return new Date(value.$date).toLocaleString();
-    }
-    return value;
-  };
+  const navigate = useNavigate();
 
   const fetchInventory = async () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:5000/inventory", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Błąd pobierania danych");
       const data = await res.json();
-      setItems(data);
+      setItems(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       setError("Nie udało się pobrać danych z magazynu.");
@@ -43,6 +48,14 @@ const Inventory = () => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const parseField = (value) => {
+    if (value && typeof value === "object") {
+      if ("$numberInt" in value) return parseInt(value.$numberInt);
+      if ("$date" in value) return new Date(value.$date).toLocaleString();
+    }
+    return value;
   };
 
   const handleSave = async () => {
@@ -58,7 +71,7 @@ const Inventory = () => {
       quantity: parseInt(quantity),
       unit,
       location,
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(), // <<< dodane
     };
 
     const token = localStorage.getItem("token");
@@ -87,6 +100,7 @@ const Inventory = () => {
       alert("Nie udało się zapisać zasobu");
     }
   };
+
 
   const handleEdit = (item) => {
     setForm({
@@ -120,51 +134,149 @@ const Inventory = () => {
     }
   };
 
+  const columns = [
+    { field: "item", headerName: "Nazwa", width: 180 },
+    { field: "type", headerName: "Typ", width: 140 },
+    {
+      field: "quantity",
+      headerName: "Ilość",
+      width: 100,
+      type: "number",
+      renderCell: (params) => parseField(params.row.quantity),
+    },
+    { field: "unit", headerName: "Jednostka", width: 100 },
+    { field: "location", headerName: "Lokalizacja", width: 150 },
+    {
+      field: "updatedAt",
+      headerName: "Aktualizacja",
+      width: 400,
+      renderCell: (params) =>
+        params.row?.updatedAt ? parseField(params.row.updatedAt) : "-",
+    },
+    {
+      field: "actions",
+      headerName: "Akcje",
+      width: 130,
+      sortable: false,
+      align: "right",
+      headerAlign: "right",
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <Tooltip title="Edytuj">
+            <IconButton onClick={() => handleEdit(params.row)} color="primary">
+              <Edit />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Usuń">
+            <IconButton
+              onClick={() => handleDelete(params.row._id)}
+              color="error"
+            >
+              <Delete />
+            </IconButton>
+          </Tooltip>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Magazyn</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate("/")}
+        >
+          Powrót
+        </Button>
+      </Box>
 
-      <h3>{editingId ? "Edytuj zasób" : "Dodaj zasób"}</h3>
-      <div style={{ marginBottom: "10px" }}>
-        <input name="item" placeholder="Nazwa" value={form.item} onChange={handleChange} />
-        <input name="type" placeholder="Typ" value={form.type} onChange={handleChange} />
-        <input name="quantity" placeholder="Ilość" type="number" value={form.quantity} onChange={handleChange} />
-        <input name="unit" placeholder="Jednostka" value={form.unit} onChange={handleChange} />
-        <input name="location" placeholder="Lokalizacja" value={form.location} onChange={handleChange} />
-        <button onClick={handleSave}>{editingId ? "Zapisz zmiany" : "Dodaj"}</button>
-      </div>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+        Magazyn
+      </Typography>
 
-      <table border="1" cellPadding="5" style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th>Nazwa</th>
-            <th>Typ</th>
-            <th>Ilość</th>
-            <th>Jednostka</th>
-            <th>Lokalizacja</th>
-            <th>Aktualizacja</th>
-            <th>Akcje</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((el) => (
-            <tr key={el._id}>
-              <td>{el.item}</td>
-              <td>{el.type}</td>
-              <td>{parseField(el.quantity)}</td>
-              <td>{el.unit}</td>
-              <td>{el.location}</td>
-              <td>{parseField(el.updatedAt)}</td>
-              <td>
-                <button onClick={() => handleEdit(el)}>Edytuj</button>
-                <button onClick={() => handleDelete(el._id)}>Usuń</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      {error && (
+        <Typography color="error" variant="body1" gutterBottom>
+          {error}
+        </Typography>
+      )}
+
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          {editingId ? "Edytuj zasób" : "Dodaj zasób"}
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="item"
+              label="Nazwa"
+              fullWidth
+              value={form.item}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="type"
+              label="Typ"
+              fullWidth
+              value={form.type}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="quantity"
+              label="Ilość"
+              type="number"
+              fullWidth
+              value={form.quantity}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="unit"
+              label="Jednostka"
+              fullWidth
+              value={form.unit}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              name="location"
+              label="Lokalizacja"
+              fullWidth
+              value={form.location}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+              sx={{ mt: 2 }}
+            >
+              {editingId ? "Zapisz zmiany" : "Dodaj zasób"}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <Paper sx={{ height: 400 }}>
+        <DataGrid
+          rows={items}
+          columns={columns}
+          getRowId={(row) => row._id}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10]}
+        />
+      </Paper>
+    </Container>
   );
 };
 

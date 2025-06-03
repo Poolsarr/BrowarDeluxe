@@ -51,18 +51,60 @@ const Batches = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const toDatetimeLocal = (str) => {
+    if (!str) return "";
+    return str.slice(0, 16);
+  };
+
+  const handleEdit = (b) => {
+    setForm({
+      _id: b._id || "",
+      recipeId: b.recipeId || "",
+      startDate: toDatetimeLocal(b.startDate),
+      endDate: toDatetimeLocal(b.endDate),
+      status: b.status || "",
+      volume: b.volume !== undefined ? String(b.volume) : "",
+      notes: b.notes || "",
+    });
+    setEditingId(b._id);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Na pewno usunąć partię?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/batches/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Błąd usuwania");
+      await fetchBatches();
+    } catch (err) {
+      console.error(err);
+      alert("Nie udało się usunąć partii");
+    }
+  };
+
   const handleSave = async () => {
     const token = localStorage.getItem("token");
+    const volumeAsNumber = parseFloat(form.volume);
+    const isValidId = /^\d{5}$/.test(form._id);
 
     if (
-      (!editingId && !/^\d{5}$/.test(form._id)) ||
-      !form.recipeId ||
+      (!editingId && !isValidId) ||
+      !form.recipeId.trim() ||
       !form.startDate ||
-      !form.status ||
-      form.volume === "" ||
-      isNaN(Number(form.volume))
+      !form.status.trim() ||
+      isNaN(volumeAsNumber)
     ) {
       alert("Uzupełnij poprawnie wszystkie wymagane pola");
+      return;
+    }
+
+    if (form.endDate && form.startDate > form.endDate) {
+      alert("Data zakończenia nie może być przed rozpoczęciem");
       return;
     }
 
@@ -72,10 +114,10 @@ const Batches = () => {
       startDate: form.startDate,
       endDate: form.endDate || null,
       status: form.status.trim(),
-      volume: Number(form.volume),
+      volume: volumeAsNumber,
       notes: form.notes.trim(),
       updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+      ...(editingId ? {} : { createdAt: new Date().toISOString() }),
     };
 
     try {
@@ -112,37 +154,6 @@ const Batches = () => {
     }
   };
 
-  const handleEdit = (b) => {
-    setForm({
-      _id: b._id,
-      recipeId: b.recipeId,
-      startDate: b.startDate?.slice(0, 16),
-      endDate: b.endDate?.slice(0, 16) || "",
-      status: b.status,
-      volume: b.volume,
-      notes: b.notes || "",
-    });
-    setEditingId(b._id);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Na pewno usunąć partię?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/batches/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error("Błąd usuwania");
-      await fetchBatches();
-    } catch (err) {
-      console.error(err);
-      alert("Nie udało się usunąć partii");
-    }
-  };
-
   const columns = [
     { field: "_id", headerName: "ID", width: 100 },
     { field: "recipeId", headerName: "Receptura", width: 130 },
@@ -150,13 +161,13 @@ const Batches = () => {
       field: "startDate",
       headerName: "Start",
       width: 160,
-      valueGetter: (p) => p.value?.slice(0, 16).replace("T", " "),
+      renderCell: (p) => p.value?.slice(0, 16).replace("T", " "),
     },
     {
       field: "endDate",
       headerName: "Koniec",
       width: 160,
-      valueGetter: (p) =>
+      renderCell: (p) =>
         p.value ? p.value.slice(0, 16).replace("T", " ") : "-",
     },
     { field: "status", headerName: "Status", width: 120 },
@@ -166,11 +177,15 @@ const Batches = () => {
       width: 120,
       type: "number",
     },
-    { field: "notes", headerName: "Notatki", width: 160 },
+    { field: "notes", headerName: "Notatki", width: 440 },
     {
       field: "actions",
       headerName: "Akcje",
       width: 130,
+      sortable: false,
+      align: "right",
+      headerAlign: "right",
+      flex: 1,
       renderCell: (params) => (
         <>
           <Tooltip title="Edytuj">
@@ -193,7 +208,6 @@ const Batches = () => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      {/* Powrót */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
           variant="outlined"
@@ -204,12 +218,10 @@ const Batches = () => {
         </Button>
       </Box>
 
-      {/* Nagłówek */}
       <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
         Partie Produkcyjne
       </Typography>
 
-      {/* Formularz */}
       <Paper sx={{ p: 3, mb: 4 }}>
         <Typography variant="h6" gutterBottom>
           {editingId ? "Edytuj partię" : "Dodaj partię"}
@@ -242,7 +254,7 @@ const Batches = () => {
               type="datetime-local"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              value={form.startDate}
+              value={form.startDate || ""}
               onChange={handleChange}
             />
           </Grid>
@@ -253,7 +265,7 @@ const Batches = () => {
               type="datetime-local"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              value={form.endDate}
+              value={form.endDate || ""}
               onChange={handleChange}
             />
           </Grid>
@@ -300,7 +312,6 @@ const Batches = () => {
         </Grid>
       </Paper>
 
-      {/* Tabela */}
       <Paper sx={{ height: 400 }}>
         <DataGrid
           rows={batches}

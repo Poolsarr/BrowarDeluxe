@@ -1,4 +1,18 @@
 import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Box,
+  Grid,
+  TextField,
+  Button,
+  Paper,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { ArrowBack, Edit, Delete } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
@@ -10,32 +24,22 @@ const Recipes = () => {
     process: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
   const fetchRecipes = async () => {
     try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/recipes", {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/recipes", {
         headers: {
-            Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        });
-
-        if (!res.ok) {
-        throw new Error("Błąd autoryzacji lub serwera");
-        }
-
-        const data = await res.json();
-        if (Array.isArray(data)) {
-            setRecipes(data);
-        } else {
-            setRecipes([]); // fallback na pustą tablicę
-        }
+      });
+      const data = await res.json();
+      setRecipes(Array.isArray(data) ? data : []);
     } catch (err) {
-        console.error("Błąd pobierania receptur:", err);
-        setRecipes([]); // fallback na pustą tablicę
+      console.error("Błąd pobierania receptur:", err);
     }
-    };
-
+  };
 
   useEffect(() => {
     fetchRecipes();
@@ -45,36 +49,65 @@ const Recipes = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleEdit = (recipe) => {
+    setForm({
+      _id: recipe._id,
+      name: recipe.name,
+      style: recipe.style,
+      ingredients: recipe.ingredients,
+      process: recipe.process,
+    });
+    setEditingId(recipe._id);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Na pewno usunąć recepturę?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/recipes/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Błąd usuwania");
+      await fetchRecipes();
+    } catch (err) {
+      console.error(err);
+      alert("Nie udało się usunąć receptury");
+    }
+  };
+
   const handleSave = async () => {
-    const { _id, name, style, ingredients, process } = form;
     const token = localStorage.getItem("token");
 
-    if (!name || !style || !ingredients || !process) {
-      alert("Uzupełnij wszystkie pola");
-      return;
-    }
-
-    if (!editingId && !/^\d{5}$/.test(_id)) {
-      alert("ID musi składać się z 5 cyfr");
+    if (
+      (!editingId && !/^\d{5}$/.test(form._id)) ||
+      !form.name.trim() ||
+      !form.style.trim() ||
+      !form.ingredients.trim() ||
+      !form.process.trim()
+    ) {
+      alert("Uzupełnij poprawnie wszystkie wymagane pola");
       return;
     }
 
     const payload = {
-      ...(editingId ? {} : { _id }),
-      name,
-      style,
-      ingredients,
-      process,
+      ...(editingId ? {} : { _id: form._id }),
+      name: form.name.trim(),
+      style: form.style.trim(),
+      ingredients: form.ingredients.trim(),
+      process: form.process.trim(),
       updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+      ...(editingId ? {} : { createdAt: new Date().toISOString() }),
     };
 
-    const url = editingId
-      ? `http://localhost:5000/recipes/${editingId}`
-      : "http://localhost:5000/recipes";
-    const method = editingId ? "PUT" : "POST";
-
     try {
+      const url = editingId
+        ? `http://localhost:5000/recipes/${editingId}`
+        : "http://localhost:5000/recipes";
+      const method = editingId ? "PUT" : "POST";
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -84,13 +117,16 @@ const Recipes = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Błąd zapisu");
-      }
+      if (!res.ok) throw new Error("Błąd zapisu");
 
       await fetchRecipes();
-      setForm({ _id: "", name: "", style: "", ingredients: "", process: "" });
+      setForm({
+        _id: "",
+        name: "",
+        style: "",
+        ingredients: "",
+        process: "",
+      });
       setEditingId(null);
     } catch (err) {
       console.error("Błąd zapisu receptury:", err);
@@ -98,108 +134,158 @@ const Recipes = () => {
     }
   };
 
-  const handleEdit = (r) => {
-    setForm({
-      _id: r._id,
-      name: r.name,
-      style: r.style,
-      ingredients: r.ingredients,
-      process: r.process,
-    });
-    setEditingId(r._id);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Na pewno usunąć recepturę?")) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/recipes/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) throw new Error("Błąd usuwania");
-
-      await fetchRecipes();
-    } catch (err) {
-      console.error(err);
-      alert("Nie udało się usunąć receptury");
-    }
-  };
-
-  const formatIngredients = (ingredients) => { // zchatowane, bo nie chcialo wyswietlac
-    if (Array.isArray(ingredients)) {
-      return ingredients.map((i) =>
-        typeof i === "object" && i !== null
-          ? `${i.name} (${i.quantity} ${i.type})`
-          : i
-      ).join(", ");
-    }
-    return ingredients;
-  };
-
-  const formatProcess = (process) => { // takze zchatowane
-    if (typeof process === "object" && process !== null) {
-        return Object.entries(process)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(", ");
-    }
-    return process;
-    };
-
+  const columns = [
+    { field: "_id", headerName: "ID", width: 100 },
+    { field: "name", headerName: "Nazwa", width: 180 },
+    { field: "style", headerName: "Styl", width: 140 },
+    {
+      field: "ingredients",
+      headerName: "Składniki",
+      width: 250,
+      renderCell: (p) =>
+        Array.isArray(p.value)
+          ? p.value.map((i) => `${i.name} (${i.quantity} ${i.type})`).join(", ")
+          : String(p.value),
+    },
+    {
+      field: "process",
+      headerName: "Proces",
+      width: 250,
+      renderCell: (p) =>
+        Array.isArray(p.value)
+          ? p.value.map((i) => `${i.name} (${i.quantity} ${i.type})`).join(", ")
+          : String(p.value),
+    },
+    {
+      field: "updatedAt",
+      headerName: "Ostatnia zmiana",
+      width: 180,
+      renderCell: (p) =>
+        p.value ? p.value.slice(0, 16).replace("T", " ") : "-",
+    },
+    {
+      field: "actions",
+      headerName: "Akcje",
+      width: 130,
+      sortable: false,
+      align: "right",
+      headerAlign: "right",
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <Tooltip title="Edytuj">
+            <IconButton onClick={() => handleEdit(params.row)} color="primary">
+              <Edit />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Usuń">
+            <IconButton
+              onClick={() => handleDelete(params.row._id)}
+              color="error"
+            >
+              <Delete />
+            </IconButton>
+          </Tooltip>
+        </>
+      ),
+    },
+  ];
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Receptury</h2>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate("/")}
+        >
+          Powrót
+        </Button>
+      </Box>
 
-      <h3>{editingId ? "Edytuj recepturę" : "Dodaj recepturę"}</h3>
-      <div style={{ marginBottom: "10px" }}>
-        {!editingId && (
-          <input
-            name="_id"
-            placeholder="ID (5 cyfr)"
-            value={form._id}
-            onChange={handleChange}
-          />
-        )}
-        <input name="name" placeholder="Nazwa" value={form.name} onChange={handleChange} />
-        <input name="style" placeholder="Styl" value={form.style} onChange={handleChange} />
-        <textarea name="ingredients" placeholder="Składniki" value={form.ingredients} onChange={handleChange} />
-        <textarea name="process" placeholder="Proces" value={form.process} onChange={handleChange} />
-        <button onClick={handleSave}>{editingId ? "Zapisz zmiany" : "Dodaj recepturę"}</button>
-      </div>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
+        Receptury
+      </Typography>
 
-      <table border="1" cellPadding="5" style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nazwa</th>
-            <th>Styl</th>
-            <th>Składniki</th>
-            <th>Proces</th>
-            <th>Akcje</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recipes.map((r) => (
-            <tr key={r._id}>
-            <td>{r._id}</td>
-            <td>{r.name}</td>
-            <td>{r.style}</td>
-            <td>{formatIngredients(r.ingredients)}</td>
-            <td>{formatProcess(r.process)}</td>
-            <td>
-                <button onClick={() => handleEdit(r)}>Edytuj</button>
-                <button onClick={() => handleDelete(r._id)}>Usuń</button>
-            </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          {editingId ? "Edytuj recepturę" : "Dodaj recepturę"}
+        </Typography>
+        <Grid container spacing={2}>
+          {!editingId && (
+            <Grid item xs={12} sm={2}>
+              <TextField
+                name="_id"
+                label="ID (5 cyfr)"
+                fullWidth
+                value={form._id}
+                onChange={handleChange}
+              />
+            </Grid>
+          )}
+          <Grid item xs={12} sm={3}>
+            <TextField
+              name="name"
+              label="Nazwa"
+              fullWidth
+              value={form.name}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              name="style"
+              label="Styl"
+              fullWidth
+              value={form.style}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="ingredients"
+              label="Składniki"
+              fullWidth
+              multiline
+              minRows={2}
+              value={form.ingredients}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="process"
+              label="Proces"
+              fullWidth
+              multiline
+              minRows={2}
+              value={form.process}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+              sx={{ mt: 2 }}
+            >
+              {editingId ? "Zapisz zmiany" : "Dodaj recepturę"}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <Paper sx={{ height: 400 }}>
+        <DataGrid
+          rows={recipes}
+          columns={columns}
+          getRowId={(row) => row._id}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10]}
+        />
+      </Paper>
+    </Container>
   );
 };
 
