@@ -9,11 +9,11 @@ import '@fontsource/roboto/700.css';
 
 import theme from './theme';
 import Home from "./pages/Home";
-import Batches from "./pages/Batches";
-import Inventory from "./pages/Inventory";
-import Recipes from "./pages/Recipes";
-import Users from "./pages/Users";
-import Invoices from "./pages/Invoices";
+import Batches from "./pages/Batches/Batches";
+import Inventory from "./pages/Inventory/Inventory";
+import Recipes from "./pages/Recipes/Recipes";
+import Users from "./pages/Users/Users";
+import Invoices from "./pages/Invoices/Invoices";
 import Auth from "./pages/Auth";
 
 function App() {
