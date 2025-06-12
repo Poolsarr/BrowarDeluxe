@@ -17,14 +17,12 @@ def register_user(request):
     if not login or not password:
         return jsonify({"error": "Podaj login i hasło"}), 400
 
-    # Sprawdź, czy użytkownik już istnieje w bazie
     existing_user = users.find_one({"login": login})
     if existing_user:
         return jsonify({"error": "Użytkownik o podanym loginie już istnieje"}), 400
 
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
-    # Dodaj użytkownika do bazy
     users.insert_one({
         "login": login,
         "password_hash": hashed_password

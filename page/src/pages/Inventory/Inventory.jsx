@@ -1,4 +1,3 @@
-// src/components/Inventory/Inventory.jsx
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Box, Button } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";

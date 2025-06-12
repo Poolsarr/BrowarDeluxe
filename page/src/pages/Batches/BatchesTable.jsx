@@ -1,4 +1,3 @@
-// src/components/Batches/BatchesTable.jsx
 import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconButton, Tooltip, Paper } from "@mui/material";

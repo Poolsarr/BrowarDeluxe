@@ -1,6 +1,14 @@
-// src/components/Invoices/InvoiceTable.jsx
-import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+} from "@mui/material";
 
 const InvoiceTable = ({ invoices, handleDownload, handleDelete }) => {
   return (
@@ -19,10 +27,18 @@ const InvoiceTable = ({ invoices, handleDownload, handleDelete }) => {
               <TableCell>{invoice.invoicename}</TableCell>
               <TableCell>{invoice.filename}</TableCell>
               <TableCell>
-                <Button onClick={() => handleDownload(invoice._id)} variant="outlined" sx={{ mr: 1 }}>
+                <Button
+                  onClick={() => handleDownload(invoice._id)}
+                  variant="outlined"
+                  sx={{ mr: 1 }}
+                >
                   Pobierz
                 </Button>
-                <Button onClick={() => handleDelete(invoice._id)} variant="outlined" color="error">
+                <Button
+                  onClick={() => handleDelete(invoice._id)}
+                  variant="outlined"
+                  color="error"
+                >
                   Usuń
                 </Button>
               </TableCell>

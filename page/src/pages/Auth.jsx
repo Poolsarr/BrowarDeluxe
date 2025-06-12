@@ -7,7 +7,7 @@ import {
   Paper,
   Box,
   Tabs,
-  Tab
+  Tab,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +24,6 @@ const Auth = () => {
     setError("");
     setSuccess("");
 
-    // Walidacja klienta – upewnij się, że nie wysyłasz pustych danych
     if (!login.trim() || !password.trim()) {
       setError("Login i hasło są wymagane.");
       return;
@@ -36,12 +35,14 @@ const Auth = () => {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ login: login.trim(), password: password.trim() }),
+        body: JSON.stringify({
+          login: login.trim(),
+          password: password.trim(),
+        }),
       });
 
       const contentType = res.headers.get("Content-Type") || "";
 
-      // Obsługa błędu serwera
       if (!res.ok) {
         const errMsg = contentType.includes("application/json")
           ? (await res.json()).error

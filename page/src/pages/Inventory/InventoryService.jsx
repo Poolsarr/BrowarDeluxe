@@ -1,4 +1,3 @@
-// src/components/Inventory/InventoryService.jsx
 const API_URL = "http://localhost:5000/inventory";
 
 const getToken = () => localStorage.getItem("token");

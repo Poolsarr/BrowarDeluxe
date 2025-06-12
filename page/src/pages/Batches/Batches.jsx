@@ -1,4 +1,3 @@
-// src/components/Batches/Batches.jsx
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Box, Button } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
@@ -6,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import BatchForm from "./BatchForm";
 import BatchesTable from "./BatchesTable";
 import { fetchBatches, deleteBatch } from "./BatchService";
-import BatchStatusChart from './BatchStatusChart';
-import { motion } from "framer-motion"; // <-- dodane
+import BatchStatusChart from "./BatchStatusChart";
+import { motion } from "framer-motion";
 
 const Batches = () => {
   const [batches, setBatches] = useState([]);

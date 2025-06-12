@@ -1,4 +1,3 @@
-// src/components/Inventory/InventoryTable.jsx
 import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconButton, Tooltip, Paper } from "@mui/material";
@@ -48,7 +47,10 @@ const InventoryTable = ({ items, handleEdit, handleDelete }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Usuń">
-            <IconButton onClick={() => handleDelete(params.row._id)} color="error">
+            <IconButton
+              onClick={() => handleDelete(params.row._id)}
+              color="error"
+            >
               <Delete />
             </IconButton>
           </Tooltip>

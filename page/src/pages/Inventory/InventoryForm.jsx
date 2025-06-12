@@ -1,8 +1,13 @@
-// src/components/Inventory/InventoryForm.jsx
 import React from "react";
 import { Paper, Typography, Grid, TextField, Button } from "@mui/material";
 
-const InventoryForm = ({ form, setForm, editingId, setEditingId, fetchInventory }) => {
+const InventoryForm = ({
+  form,
+  setForm,
+  editingId,
+  setEditingId,
+  fetchInventory,
+}) => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -25,29 +30,23 @@ const InventoryForm = ({ form, setForm, editingId, setEditingId, fetchInventory 
 
     try {
       if (editingId) {
-        await fetch(
-          `http://localhost:5000/inventory/${editingId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(payload),
-          }
-        );
+        await fetch(`http://localhost:5000/inventory/${editingId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(payload),
+        });
       } else {
-        await fetch(
-          "http://localhost:5000/inventory",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(payload),
-          }
-        );
+        await fetch("http://localhost:5000/inventory", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(payload),
+        });
       }
       await fetchInventory();
       setForm({ item: "", type: "", quantity: "", unit: "", location: "" });

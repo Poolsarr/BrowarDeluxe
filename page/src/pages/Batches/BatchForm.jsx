@@ -1,8 +1,13 @@
-// src/components/Batches/BatchForm.jsx
 import React from "react";
 import { Paper, Typography, Grid, TextField, Button } from "@mui/material";
 
-const BatchForm = ({ form, setForm, editingId, setEditingId, fetchBatches }) => {
+const BatchForm = ({
+  form,
+  setForm,
+  editingId,
+  setEditingId,
+  fetchBatches,
+}) => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };

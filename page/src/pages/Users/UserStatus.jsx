@@ -7,7 +7,6 @@ const UserStatus = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Sprawdzenie statusu serwera <- na razie wyłączone
     const pingServer = async () => {
       try {
         const res = await fetch("http://localhost:5000/");
@@ -25,12 +24,13 @@ const UserStatus = () => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
-        setUsername(payload.sub || payload.login || payload.username || "Nieznany");
+        setUsername(
+          payload.sub || payload.login || payload.username || "Nieznany"
+        );
       } catch (e) {
         setUsername("Nieznany");
       }
     }
-
 
     pingServer();
   }, []);
@@ -43,17 +43,21 @@ const UserStatus = () => {
   };
 
   return (
-    <div style={{
-      position: "absolute",
-      top: 10,
-      right: 20,
-      textAlign: "right",
-      fontSize: "0.9rem",
-      color: "#333"
-    }}>
+    <div
+      style={{
+        position: "absolute",
+        top: 10,
+        right: 20,
+        textAlign: "right",
+        fontSize: "0.9rem",
+        color: "#333",
+      }}
+    >
       {username ? (
         <>
-          <div>Zalogowany: <strong>{username}</strong></div>
+          <div>
+            Zalogowany: <strong>{username}</strong>
+          </div>
           <button onClick={handleLogout} style={{ marginTop: "4px" }}>
             Wyloguj
           </button>

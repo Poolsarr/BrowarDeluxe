@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Science, Inventory, Receipt, Assignment } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // <--- dodane
+import { motion } from "framer-motion";
 
 const Home = () => {
   const navigate = useNavigate();

@@ -10,7 +10,6 @@ def get_all_users():
     try:
         all_users = users.find() 
         
-        # Zamiana wyników na listę i konwersja do JSON
         users_list = []
         for user in all_users:
             user_data = {

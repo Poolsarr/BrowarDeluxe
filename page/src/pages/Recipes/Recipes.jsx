@@ -4,7 +4,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import RecipeForm from "./RecipeForm";
 import RecipesTable from "./RecipesTable";
-import { motion } from "framer-motion"; // <--- Dodano
+import { motion } from "framer-motion";
 
 const Recipes = () => {
   const [recipes, setRecipes] = useState([]);

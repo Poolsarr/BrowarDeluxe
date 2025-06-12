@@ -15,7 +15,7 @@ def upload_invoice_file(request):
         return jsonify({"error": "No file part in the request"}), 400
     
     file = request.files['file']
-    invoicename = request.form.get('invoicename', file.filename) # get invoicename from form or use filename
+    invoicename = request.form.get('invoicename', file.filename)
 
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400

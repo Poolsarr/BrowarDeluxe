@@ -1,4 +1,3 @@
-// src/components/Recipes/RecipeService.js
 const API_URL = "http://localhost:5000/recipes";
 
 const getToken = () => localStorage.getItem("token");

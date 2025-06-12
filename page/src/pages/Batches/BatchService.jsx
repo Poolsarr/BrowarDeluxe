@@ -1,4 +1,3 @@
-// src/components/Batches/BatchService.jsx
 const API_URL = "http://localhost:5000/batches";
 
 const getToken = () => localStorage.getItem("token");
